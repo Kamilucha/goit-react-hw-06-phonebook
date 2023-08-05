@@ -1,15 +1,20 @@
-import PropTypes from 'prop-types'
 import { useState } from "react"
 import shortid from "shortid"
+import { useDispatch, useSelector } from 'react-redux';
+import { getContacts } from 'redux/selector';
+import { addContacts } from 'redux/contactSlice';
 import { Input, Label, FormContainer, Button } from "./Form.styled"
 
 
-const Form = ({ onSubmit }) => {
+const Form = () => {
     const [name, setName] = useState('');
     const [number, setNumber] = useState('');
 
     const nameInputId = shortid.generate();
     const telInputId = shortid.generate();
+
+    const dispatch = useDispatch();
+    const contacts = useSelector(getContacts);
 
 
     const handleChange = e => {
@@ -31,7 +36,20 @@ const Form = ({ onSubmit }) => {
     const handleSubmit = e => {
         e.preventDefault();
 
-        onSubmit({ name, number })
+        // onSubmit({ name, number })
+
+        const duplicate = contacts.some(
+      contact =>
+        contact.name.toLowerCase() === name.toLowerCase() &&
+        contact.number === number
+    );
+
+    if (duplicate) {
+      return alert (`${name} is already in contacts`);
+    }
+
+
+        dispatch(addContacts(name, number));
 
         reset()
     };
@@ -74,9 +92,7 @@ const Form = ({ onSubmit }) => {
 ) 
 }
 
-Form.propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-}
+
 
 export default Form
 
